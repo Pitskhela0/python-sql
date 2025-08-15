@@ -3,8 +3,8 @@ from typing import Generator
 
 from src.python_sql.services.data_validator import ValidatorContext
 
-logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class DataFilter:

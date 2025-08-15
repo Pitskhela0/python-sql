@@ -2,8 +2,8 @@ from src.python_sql.database.database_connector import MySQLConnector
 from mysql.connector import Error as MYSQLError
 import logging
 
-logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def _drop_rooms_table(cursor):

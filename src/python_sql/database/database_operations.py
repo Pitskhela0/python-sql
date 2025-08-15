@@ -3,8 +3,8 @@ from src.python_sql.database.database_connector import MySQLConnector, MYSQLErro
 from typing import Generator
 import logging
 
-logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class EntityRepository(ABC):
@@ -18,7 +18,7 @@ class EntityRepository(ABC):
         """
         Inserts 1000 item at a time to the database
 
-        :param items: Generator of item, for example, rooms, students..
+        :param items: Generator of item, for example, rooms, students.
         :return: None
         """
         pass
@@ -119,3 +119,4 @@ class StudentRepository(EntityRepository):
 
     def insert_batch(self, students: Generator[dict, None, None]) -> None:
         self.execute_batch_insertion(students)
+        logger.info("inserted in students")
