@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from src.python_sql.database.database_connector import MySQLConnector
-from typing import Generator, Optional
+from src.python_sql.database.database_connector import MySQLConnector, MYSQLError
+from typing import Generator
 import logging
 
 logging.getLogger().setLevel(logging.INFO)
@@ -43,7 +43,7 @@ class EntityRepository(ABC):
         """
         pass
 
-    def execute_batch_insertion(self, items: Generator[dict, None, None]):
+    def execute_batch_insertion(self, items: Generator[dict, None, None]) -> None:
         if not self.connector.db_is_connected():
             raise ConnectionError("DB not connected")
 
@@ -51,26 +51,27 @@ class EntityRepository(ABC):
 
         try:
             query = self.get_insert_query()
-            batch: list[Optional[tuple]] = [None] * self.batch_size
+            batch = []
 
-            count = 0
             for item in items:
                 unpack_item = self.get_item_value(item)
-                batch[count] = unpack_item
-                count += 1
+                batch.append(unpack_item)
 
-                if count >= self.batch_size:
+                if len(batch) >= self.batch_size:
                     cursor.executemany(query, batch)
                     logger.info(f"Inserted {len(batch)} items")
-                    batch.clear()
+                    batch = []
 
-            if len(batch) > self.batch_size:
+            if batch:
                 cursor.executemany(query, batch)
-                logger.info(f"Inserted {len(batch)} items")
-                batch.clear()
+                logger.info(f"Inserted final batch of {len(batch)} items")
 
+        except MYSQLError as error:
+            logger.error(f"MySQL error during insertion: {error}")
+            raise
         except Exception as error:
-            logger.warning(f"Unable to finish insertion: {error}")
+            logger.error(f"Unexpected error during insertion: {error}")
+            raise
         finally:
             cursor.close()
 
@@ -81,6 +82,7 @@ class RoomRepository(EntityRepository):
             """
             INSERT INTO Rooms (room_id, name)
             VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE name = VALUES(name)
             """
         )
 
@@ -89,6 +91,7 @@ class RoomRepository(EntityRepository):
 
     def insert_batch(self, rooms: Generator[dict, None, None]) -> None:
         self.execute_batch_insertion(rooms)
+        logger.info("Room insertion completed")
 
 
 class StudentRepository(EntityRepository):
@@ -97,6 +100,11 @@ class StudentRepository(EntityRepository):
             """
             INSERT INTO Students (student_id, name, birthday, sex, room_id)
             VALUES (%s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE 
+                name = VALUES(name),
+                birthday = VALUES(birthday),
+                sex = VALUES(sex),
+                room_id = VALUES(room_id)
             """
         )
 
@@ -106,7 +114,7 @@ class StudentRepository(EntityRepository):
             item['name'],
             item['birthday'],
             item['sex'],
-            item['room_id']
+            item['room']
         )
 
     def insert_batch(self, students: Generator[dict, None, None]) -> None:
