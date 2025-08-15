@@ -25,6 +25,7 @@ class MySQLConnector:
 
         try:
             self.connection = mysql.connector.connect(**self.connection_parameters)
+            self.connection.autocommit = True
             logger.info("Connected to database")
         except MYSQLError as error:
             logger.error(f"Connection failed: {error}")
@@ -54,7 +55,7 @@ class MySQLConnector:
         except (MYSQLError, Exception):
             return False
 
-    def get_cursor(self, dictionary: bool = True):
+    def get_cursor(self, dictionary: bool = False):
         if not self.db_is_connected():
             logger.warning("Database is not connected")
             raise ConnectionError("Database is not connected")
