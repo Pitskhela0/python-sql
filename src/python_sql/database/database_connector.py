@@ -3,8 +3,8 @@ from mysql.connector import Error as MYSQLError
 import os
 import logging
 
-logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class MySQLConnector:
