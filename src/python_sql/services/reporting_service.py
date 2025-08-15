@@ -6,7 +6,7 @@ class ReportingService:
         self.connector = db_connection
 
     def rooms_with_students_count(self):
-        cursor = self.connector.get_cursor()
+        cursor = self.connector.get_cursor(dictionary=True)
         cursor.execute(
             """
             SELECT Rooms.room_id, Rooms.name, count(Students.student_id) AS students_count
@@ -20,7 +20,7 @@ class ReportingService:
         return cursor.fetchall()
 
     def top_5_least_average_age_room(self):
-        cursor = self.connector.get_cursor()
+        cursor = self.connector.get_cursor(dictionary=True)
         cursor.execute("""
         SELECT
             Rooms.room_id,
@@ -36,7 +36,7 @@ class ReportingService:
         return cursor.fetchall()
 
     def top_5_rooms_with_largest_age_diff(self):
-        cursor = self.connector.get_cursor()
+        cursor = self.connector.get_cursor(dictionary=True)
         cursor.execute("""
         SELECT
             Rooms.room_id,
@@ -54,7 +54,7 @@ class ReportingService:
         return cursor.fetchall()
 
     def rooms_with_different_sex(self):
-        cursor = self.connector.get_cursor()
+        cursor = self.connector.get_cursor(dictionary=True)
         cursor.execute("""
                 SELECT
                     Rooms.room_id,
