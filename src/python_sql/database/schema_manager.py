@@ -1,9 +1,43 @@
-from database_connector import MySQLConnector
+from src.python_sql.database.database_connector import MySQLConnector
 from mysql.connector import Error as MYSQLError
 import logging
 
 logging.getLogger().setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def _drop_rooms_table(cursor):
+    cursor.execute("DROP TABLE IF EXISTS Rooms")
+    logger.info("Rooms table dropped")
+
+
+def _drop_students_table(cursor):
+    cursor.execute("DROP TABLE IF EXISTS Students")
+    logger.info("Students table dropped")
+
+
+def _create_students_schema(cursor):
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Students (
+            student_id INT PRIMARY KEY,
+            name VARCHAR(50) NOT NULL,
+            birthday DATE NOT NULL,
+            sex ENUM('M', 'F') NOT NULL,
+            room_id INT,
+            FOREIGN KEY (room_id) REFERENCES Rooms(room_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    logger.info("Students table created")
+
+
+def _create_rooms_schema(cursor):
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Rooms (
+            room_id INT PRIMARY KEY,
+            name VARCHAR(50) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    logger.info("Rooms table created")
 
 
 class SchemaManager:
@@ -18,8 +52,8 @@ class SchemaManager:
         cursor = None
         try:
             cursor = self.connector.get_cursor()
-            self._create_rooms_schema(cursor)
-            self._create_students_schema(cursor)
+            _create_rooms_schema(cursor)
+            _create_students_schema(cursor)
             logger.info("Successfully created rooms and students schema")
 
         except MYSQLError as e:
@@ -32,28 +66,6 @@ class SchemaManager:
             if cursor:
                 cursor.close()
 
-    def _create_rooms_schema(self, cursor):
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Rooms (
-                room_id INT PRIMARY KEY,
-                name VARCHAR(50) NOT NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        """)
-        logger.info("Rooms table created")
-
-    def _create_students_schema(self, cursor):
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Students (
-                student_id INT PRIMARY KEY,
-                name VARCHAR(50) NOT NULL,
-                birthday DATE NOT NULL,
-                sex ENUM('M', 'F') NOT NULL,
-                room_id INT,
-                FOREIGN KEY (room_id) REFERENCES Rooms(room_id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        """)
-        logger.info("Students table created")
-
     def drop_rooms_students_schema(self):
         if not self.connector.db_is_connected():
             logger.error("Database not connected")
@@ -62,8 +74,8 @@ class SchemaManager:
         cursor = None
         try:
             cursor = self.connector.get_cursor()
-            self._drop_students_table(cursor)
-            self._drop_rooms_table(cursor)
+            _drop_students_table(cursor)
+            _drop_rooms_table(cursor)
             logger.info("Successfully dropped rooms and students schema")
 
         except MYSQLError as e:
@@ -75,11 +87,3 @@ class SchemaManager:
         finally:
             if cursor:
                 cursor.close()
-
-    def _drop_students_table(self, cursor):
-        cursor.execute("DROP TABLE IF EXISTS Students")
-        logger.info("Students table dropped")
-
-    def _drop_rooms_table(self, cursor):
-        cursor.execute("DROP TABLE IF EXISTS Rooms")
-        logger.info("Rooms table dropped")
