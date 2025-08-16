@@ -10,7 +10,10 @@ logger.setLevel(logging.INFO)
 
 
 class MySQLConnector:
+    """Manages MySQL database connections."""
+
     def __init__(self):
+        """Initialize database connector with configuration parameters."""
         self.connection = None
         self.connection_parameters = {
             'host': os.getenv(DatabaseConfig.ENV_DB_HOST, DatabaseConfig.DEFAULT_HOST),
@@ -21,6 +24,7 @@ class MySQLConnector:
         }
 
     def connect(self) -> None:
+        """Establish connection to MySQL database."""
         if self.connection is not None and self.db_is_connected():
             logger.warning(LogMessages.DB_ALREADY_CONNECTED)
             return
@@ -37,6 +41,7 @@ class MySQLConnector:
             raise
 
     def disconnect(self) -> None:
+        """Close database connection."""
         if self.connection is None:
             return
 
@@ -52,12 +57,14 @@ class MySQLConnector:
             self.connection = None
 
     def db_is_connected(self) -> bool:
+        """Check if database is connected."""
         try:
             return self.connection is not None and self.connection.is_connected()
         except (MYSQLError, Exception):
             return False
 
     def get_cursor(self, dictionary: bool = False):
+        """Get database cursor for executing queries."""
         if not self.db_is_connected():
             logger.warning(LogMessages.DB_NOT_CONNECTED)
             raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)

@@ -9,16 +9,19 @@ logger.setLevel(logging.INFO)
 
 
 def _drop_rooms_table(cursor):
+    """Drop the rooms table from database."""
     cursor.execute(SQLQueries.DROP_ROOMS_TABLE)
     logger.info(LogMessages.ROOMS_TABLE_DROPPED)
 
 
 def _drop_students_table(cursor):
+    """Drop the students table from database."""
     cursor.execute(SQLQueries.DROP_STUDENTS_TABLE)
     logger.info(LogMessages.STUDENTS_TABLE_DROPPED)
 
 
 def _create_students_schema(cursor):
+    """Create the students table in database."""
     cursor.execute(
         SQLQueries.CREATE_STUDENTS_TABLE
     )
@@ -26,6 +29,7 @@ def _create_students_schema(cursor):
 
 
 def _create_rooms_schema(cursor):
+    """Create the rooms table in database."""
     cursor.execute(
         SQLQueries.CREATE_ROOMS_TABLE
     )
@@ -33,10 +37,14 @@ def _create_rooms_schema(cursor):
 
 
 class SchemaManager:
+    """Manages database schema operations for rooms and students tables."""
+
     def __init__(self, mysql_connector: MySQLConnector):
+        """Initialize with database connector."""
         self.connector = mysql_connector
 
     def create_room_student_schema(self):
+        """Create both rooms and students tables."""
         if not self.connector.db_is_connected():
             logger.error(LogMessages.DB_NOT_CONNECTED)
             raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)
@@ -59,6 +67,7 @@ class SchemaManager:
                 cursor.close()
 
     def drop_rooms_students_schema(self):
+        """Drop both rooms and students tables."""
         if not self.connector.db_is_connected():
             logger.error(LogMessages.DB_NOT_CONNECTED)
             raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)

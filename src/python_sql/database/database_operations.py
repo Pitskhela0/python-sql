@@ -11,8 +11,10 @@ logger.setLevel(logging.INFO)
 
 
 class EntityRepository(ABC):
+    """Base class for database operations on entities."""
 
     def __init__(self, connector: MySQLConnector):
+        """Initialize with database connector."""
         self.connector = connector
         self.batch_size = ApplicationConfig.DEFAULT_BATCH_SIZE
 
@@ -47,6 +49,7 @@ class EntityRepository(ABC):
         pass
 
     def execute_batch_insertion(self, items: Generator[dict, None, None]) -> None:
+        """Execute batch insertion of items into database."""
         if not self.connector.db_is_connected():
             raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)
 
@@ -80,26 +83,35 @@ class EntityRepository(ABC):
 
 
 class RoomRepository(EntityRepository):
+    """Repository for room data operations."""
+
     def get_insert_query(self) -> str:
+        """Get SQL query for room insertion."""
         return (
             SQLQueries.INSERT_ROOM_QUERY
         )
 
     def get_item_value(self, item: dict) -> tuple:
+        """Extract room values from dictionary."""
         return item['id'], item['name']
 
     def insert_batch(self, rooms: Generator[dict, None, None]) -> None:
+        """Insert batch of rooms into database."""
         self.execute_batch_insertion(rooms)
         logger.info(LogMessages.ROOM_INSERTION_COMPLETED)
 
 
 class StudentRepository(EntityRepository):
+    """Repository for student data operations."""
+
     def get_insert_query(self) -> str:
+        """Get SQL query for student insertion."""
         return (
             SQLQueries.INSERT_STUDENT_QUERY
         )
 
     def get_item_value(self, item: dict) -> tuple:
+        """Extract student values from dictionary."""
         return (
             item['id'],
             item['name'],
@@ -109,5 +121,6 @@ class StudentRepository(EntityRepository):
         )
 
     def insert_batch(self, students: Generator[dict, None, None]) -> None:
+        """Insert batch of students into database."""
         self.execute_batch_insertion(students)
         logger.info(LogMessages.STUDENT_INSERTION_COMPLETED)

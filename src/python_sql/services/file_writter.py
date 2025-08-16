@@ -9,6 +9,8 @@ logger.setLevel(logging.INFO)
 
 
 class ResultWriter:
+    """Writes query results to text files."""
+
     @staticmethod
     def write_txt(file_path: str, data: List[Dict]):
         """
