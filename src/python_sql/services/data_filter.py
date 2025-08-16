@@ -1,7 +1,7 @@
 import logging
 from typing import Generator
-
 from src.python_sql.services.data_validator import ValidatorContext
+from src.python_sql.constants.messages import LogMessages
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -29,4 +29,4 @@ class DataFilter:
             if validation_context.execute_validation(item):
                 yield item
             else:
-                logger.warning(f"skipping {item}")
+                logger.warning(LogMessages.SKIPPING_INVALID_ITEM.format(item))

@@ -1,6 +1,8 @@
 import os
 import logging
 from typing import List, Dict
+from src.python_sql.constants.application_config import ApplicationConfig
+from src.python_sql.constants.messages import LogMessages
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -13,17 +15,17 @@ class ResultWriter:
         Write a list of dictionaries to a plain text file.
         """
         if not data:
-            logger.warning(f"No data to write for file: {file_path}")
+            logger.warning(LogMessages.NO_DATA_TO_WRITE.format(file_path))
             return
 
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         try:
-            with open(file_path, mode="w", encoding="utf-8") as f:
+            with open(file_path, mode=ApplicationConfig.FILE_MODE_WRITE, encoding=ApplicationConfig.DEFAULT_ENCODING) as f:
                 for row in data:
                     line = ", ".join(f"{k}: {v}" for k, v in row.items())
                     f.write(line + "\n")
-            logger.info(f"Successfully wrote {len(data)} rows to {file_path}")
+            logger.info(LogMessages.FILE_WRITE_SUCCESS.format(len(data), file_path))
         except Exception as e:
-            logger.error(f"Failed to write to {file_path}: {e}")
+            logger.error(LogMessages.FILE_WRITE_FAILED.format(file_path, e))
             raise

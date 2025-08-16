@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from src.python_sql.database.database_connector import MySQLConnector, MYSQLError
 from typing import Generator
+from src.python_sql.constants.sql_queries import SQLQueries
+from src.python_sql.constants.application_config import ApplicationConfig
+from src.python_sql.constants.messages import LogMessages, ErrorMessages
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,7 +14,7 @@ class EntityRepository(ABC):
 
     def __init__(self, connector: MySQLConnector):
         self.connector = connector
-        self.batch_size = 1000
+        self.batch_size = ApplicationConfig.DEFAULT_BATCH_SIZE
 
     @abstractmethod
     def insert_batch(self, items: Generator[dict, None, None]) -> None:
@@ -45,7 +48,7 @@ class EntityRepository(ABC):
 
     def execute_batch_insertion(self, items: Generator[dict, None, None]) -> None:
         if not self.connector.db_is_connected():
-            raise ConnectionError("DB not connected")
+            raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)
 
         cursor = self.connector.get_cursor()
 
@@ -59,18 +62,18 @@ class EntityRepository(ABC):
 
                 if len(batch) >= self.batch_size:
                     cursor.executemany(query, batch)
-                    logger.info(f"Inserted {len(batch)} items")
+                    logger.info(LogMessages.ITEMS_INSERTED.format(len(batch)))
                     batch = []
 
             if batch:
                 cursor.executemany(query, batch)
-                logger.info(f"Inserted final batch of {len(batch)} items")
+                logger.info(LogMessages.FINAL_BATCH_INSERTED.format(len(batch)))
 
         except MYSQLError as error:
-            logger.error(f"MySQL error during insertion: {error}")
+            logger.error(LogMessages.MYSQL_INSERTION_ERROR.format(error))
             raise
         except Exception as error:
-            logger.error(f"Unexpected error during insertion: {error}")
+            logger.error(LogMessages.UNEXPECTED_INSERTION_ERROR.format(error))
             raise
         finally:
             cursor.close()
@@ -79,11 +82,7 @@ class EntityRepository(ABC):
 class RoomRepository(EntityRepository):
     def get_insert_query(self) -> str:
         return (
-            """
-            INSERT INTO Rooms (room_id, name)
-            VALUES (%s, %s)
-            ON DUPLICATE KEY UPDATE name = VALUES(name)
-            """
+            SQLQueries.INSERT_ROOM_QUERY
         )
 
     def get_item_value(self, item: dict) -> tuple:
@@ -91,21 +90,13 @@ class RoomRepository(EntityRepository):
 
     def insert_batch(self, rooms: Generator[dict, None, None]) -> None:
         self.execute_batch_insertion(rooms)
-        logger.info("Room insertion completed")
+        logger.info(LogMessages.ROOM_INSERTION_COMPLETED)
 
 
 class StudentRepository(EntityRepository):
     def get_insert_query(self) -> str:
         return (
-            """
-            INSERT INTO Students (student_id, name, birthday, sex, room_id)
-            VALUES (%s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE 
-                name = VALUES(name),
-                birthday = VALUES(birthday),
-                sex = VALUES(sex),
-                room_id = VALUES(room_id)
-            """
+            SQLQueries.INSERT_STUDENT_QUERY
         )
 
     def get_item_value(self, item: dict) -> tuple:
@@ -119,4 +110,4 @@ class StudentRepository(EntityRepository):
 
     def insert_batch(self, students: Generator[dict, None, None]) -> None:
         self.execute_batch_insertion(students)
-        logger.info("inserted in students")
+        logger.info(LogMessages.STUDENT_INSERTION_COMPLETED)

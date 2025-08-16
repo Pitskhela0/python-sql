@@ -1,4 +1,5 @@
 from src.python_sql.database.database_connector import MySQLConnector
+from src.python_sql.constants.sql_queries import SQLQueries
 
 
 class ReportingService:
@@ -8,62 +9,31 @@ class ReportingService:
     def rooms_with_students_count(self):
         cursor = self.connector.get_cursor(dictionary=True)
         cursor.execute(
-            """
-            SELECT Rooms.room_id, Rooms.name, count(Students.student_id) AS students_count
-            FROM Rooms
-            LEFT JOIN Students
-            ON Rooms.room_id = Students.room_id
-            GROUP BY Rooms.room_id;
-            """
+            SQLQueries.ROOMS_WITH_STUDENTS_COUNT
         )
 
         return cursor.fetchall()
 
     def top_5_least_average_age_room(self):
         cursor = self.connector.get_cursor(dictionary=True)
-        cursor.execute("""
-        SELECT
-            Rooms.room_id,
-            Rooms.name,
-            AVG(FLOOR(DATEDIFF(CURDATE(), Students.birthday) / 365.25)) AS avg_age
-        FROM Rooms
-        INNER JOIN Students ON Rooms.room_id = Students.room_id
-        GROUP BY Rooms.room_id
-        ORDER BY avg_age ASC
-        LIMIT 5;
-        """)
+        cursor.execute(
+            SQLQueries.TOP_5_LEAST_AVERAGE_AGE_ROOMS
+        )
 
         return cursor.fetchall()
 
     def top_5_rooms_with_largest_age_diff(self):
         cursor = self.connector.get_cursor(dictionary=True)
-        cursor.execute("""
-        SELECT
-            Rooms.room_id,
-            Rooms.name,
-            MAX(TIMESTAMPDIFF(YEAR, Students.birthday, CURDATE())) -
-            MIN(TIMESTAMPDIFF(YEAR, Students.birthday, CURDATE())) AS age_diff
-        FROM Rooms
-        INNER JOIN Students
-            ON Rooms.room_id = Students.room_id
-        GROUP BY Rooms.room_id, Rooms.name
-        ORDER BY age_diff DESC
-        LIMIT 5;
-        """)
+        cursor.execute(
+            SQLQueries.TOP_5_LARGEST_AGE_DIFF_ROOMS
+        )
 
         return cursor.fetchall()
 
     def rooms_with_different_sex(self):
         cursor = self.connector.get_cursor(dictionary=True)
-        cursor.execute("""
-                SELECT
-                    Rooms.room_id,
-                    Rooms.name
-                FROM Rooms
-                INNER JOIN Students
-                    ON Rooms.room_id = Students.room_id
-                GROUP BY Rooms.room_id
-                HAVING COUNT(DISTINCT Students.sex) > 1;
-                """)
+        cursor.execute(
+            SQLQueries.ROOMS_WITH_DIFFERENT_SEX
+        )
 
         return cursor.fetchall()

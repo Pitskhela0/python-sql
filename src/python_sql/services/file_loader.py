@@ -1,6 +1,7 @@
 from collections.abc import Generator
-
 import ijson
+from src.python_sql.constants.application_config import ApplicationConfig
+from src.python_sql.constants.messages import ErrorMessages
 
 
 class FileLoader:
@@ -23,12 +24,12 @@ class FileLoader:
             OSError: If an unexpected I/O error occurs.
         """
         try:
-            with open(path, "r", encoding="utf-8") as file:
+            with open(path, ApplicationConfig.FILE_MODE_READ, encoding=ApplicationConfig.DEFAULT_ENCODING) as file:
                 try:
-                    yield from ijson.items(file, "item")
+                    yield from ijson.items(file, ApplicationConfig.JSON_ITEMS_PATH)
                 except ijson.JSONError as e:
-                    raise ValueError(f"Invalid JSON" f" format in file: {path}") from e
+                    raise ValueError(ErrorMessages.INVALID_JSON_FORMAT.format(path)) from e
         except (FileNotFoundError, PermissionError):
             raise
         except OSError as e:
-            raise OSError(f"Error reading file: {path}") from e
+            raise OSError(ErrorMessages.FILE_READ_ERROR.format(path)) from e

@@ -1,5 +1,7 @@
 from src.python_sql.database.database_connector import MySQLConnector
 from mysql.connector import Error as MYSQLError
+from src.python_sql.constants.sql_queries import SQLQueries
+from src.python_sql.constants.messages import LogMessages, ErrorMessages
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,37 +9,27 @@ logger.setLevel(logging.INFO)
 
 
 def _drop_rooms_table(cursor):
-    cursor.execute("DROP TABLE IF EXISTS Rooms")
-    logger.info("Rooms table dropped")
+    cursor.execute(SQLQueries.DROP_ROOMS_TABLE)
+    logger.info(LogMessages.ROOMS_TABLE_DROPPED)
 
 
 def _drop_students_table(cursor):
-    cursor.execute("DROP TABLE IF EXISTS Students")
-    logger.info("Students table dropped")
+    cursor.execute(SQLQueries.DROP_STUDENTS_TABLE)
+    logger.info(LogMessages.STUDENTS_TABLE_DROPPED)
 
 
 def _create_students_schema(cursor):
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS Students (
-            student_id INT PRIMARY KEY,
-            name VARCHAR(50) NOT NULL,
-            birthday DATE NOT NULL,
-            sex ENUM('M', 'F') NOT NULL,
-            room_id INT,
-            FOREIGN KEY (room_id) REFERENCES Rooms(room_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    """)
-    logger.info("Students table created")
+    cursor.execute(
+        SQLQueries.CREATE_STUDENTS_TABLE
+    )
+    logger.info(LogMessages.STUDENTS_TABLE_CREATED)
 
 
 def _create_rooms_schema(cursor):
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS Rooms (
-            room_id INT PRIMARY KEY,
-            name VARCHAR(50) NOT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    """)
-    logger.info("Rooms table created")
+    cursor.execute(
+        SQLQueries.CREATE_ROOMS_TABLE
+    )
+    logger.info(LogMessages.ROOMS_TABLE_CREATED)
 
 
 class SchemaManager:
@@ -46,21 +38,21 @@ class SchemaManager:
 
     def create_room_student_schema(self):
         if not self.connector.db_is_connected():
-            logger.error("Database not connected")
-            raise ConnectionError("Database not connected")
+            logger.error(LogMessages.DB_NOT_CONNECTED)
+            raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)
 
         cursor = None
         try:
             cursor = self.connector.get_cursor()
             _create_rooms_schema(cursor)
             _create_students_schema(cursor)
-            logger.info("Successfully created rooms and students schema")
+            logger.info(LogMessages.SCHEMA_CREATED_SUCCESS)
 
         except MYSQLError as e:
-            logger.error(f"MySQL error creating schema: {e}")
+            logger.error(LogMessages.SCHEMA_MYSQL_ERROR_CREATE.format(e))
             raise
         except Exception as e:
-            logger.error(f"Unexpected error creating schema: {e}")
+            logger.error(LogMessages.SCHEMA_UNEXPECTED_ERROR_CREATE.format(e))
             raise
         finally:
             if cursor:
@@ -68,21 +60,21 @@ class SchemaManager:
 
     def drop_rooms_students_schema(self):
         if not self.connector.db_is_connected():
-            logger.error("Database not connected")
-            raise ConnectionError("Database not connected")
+            logger.error(LogMessages.DB_NOT_CONNECTED)
+            raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)
 
         cursor = None
         try:
             cursor = self.connector.get_cursor()
             _drop_students_table(cursor)
             _drop_rooms_table(cursor)
-            logger.info("Successfully dropped rooms and students schema")
+            logger.info(LogMessages.SCHEMA_DROPPED_SUCCESS)
 
         except MYSQLError as e:
-            logger.error(f"MySQL error dropping schema: {e}")
+            logger.error(LogMessages.SCHEMA_MYSQL_ERROR_DROP.format(e))
             raise
         except Exception as e:
-            logger.error(f"Unexpected error dropping schema: {e}")
+            logger.error(LogMessages.SCHEMA_UNEXPECTED_ERROR_DROP.format(e))
             raise
         finally:
             if cursor:

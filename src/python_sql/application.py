@@ -5,6 +5,7 @@ from src.python_sql.database.schema_manager import SchemaManager
 from src.python_sql.database.database_operations import RoomRepository, StudentRepository
 from src.python_sql.services.reporting_service import ReportingService
 from src.python_sql.services.file_writter import ResultWriter
+from src.python_sql.constants.application_config import ApplicationConfig
 
 from typing import Final
 import logging
@@ -12,8 +13,8 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-room_file: Final = "src/resources/rooms.json"
-student_file: Final = "src/resources/students.json"
+room_file: Final = ApplicationConfig.ROOM_FILE_PATH
+student_file: Final = ApplicationConfig.STUDENT_FILE_PATH
 
 
 def start_application() -> None:
@@ -27,10 +28,9 @@ def start_application() -> None:
     """
 
     try:
-
-        rooms = DataFilter.filter_data(FileLoader.load_file_data(room_file), "room")
-        students = DataFilter.filter_data(FileLoader.load_file_data(student_file), "student")
-
+        # load data from json
+        rooms = DataFilter.filter_data(FileLoader.load_file_data(room_file), ApplicationConfig.ROOM_STRATEGY)
+        students = DataFilter.filter_data(FileLoader.load_file_data(student_file), ApplicationConfig.STUDENT_STRATEGY)
 
         # connect to database
         db_connection = MySQLConnector()
@@ -39,7 +39,6 @@ def start_application() -> None:
         # create schema
         schema_manager = SchemaManager(db_connection)
         schema_manager.create_room_student_schema()
-        print("schema created")
 
         # insert data
         rooms_repo = RoomRepository(db_connection)
@@ -48,15 +47,17 @@ def start_application() -> None:
         students_repo = StudentRepository(db_connection)
         students_repo.insert_batch(students)
 
+        # do report
         report = ReportingService(db_connection)
 
-        ResultWriter.write_txt("src/python_sql/output/top_5_least_average_age_room.txt", report.top_5_least_average_age_room())
+        # write report
+        ResultWriter.write_txt(ApplicationConfig.TOP_5_LEAST_AVG_AGE_OUTPUT, report.top_5_least_average_age_room())
 
-        ResultWriter.write_txt("src/python_sql/output/rooms_with_different_sex.txt", report.rooms_with_different_sex())
+        ResultWriter.write_txt(ApplicationConfig.ROOMS_WITH_DIFFERENT_SEX_OUTPUT, report.rooms_with_different_sex())
 
-        ResultWriter.write_txt("src/python_sql/output/rooms_with_students_count.txt", report.rooms_with_students_count())
+        ResultWriter.write_txt(ApplicationConfig.ROOMS_WITH_STUDENTS_COUNT_OUTPUT, report.rooms_with_students_count())
 
-        ResultWriter.write_txt("src/python_sql/output/top_5_rooms_with_largest_age_diff.txt", report.top_5_rooms_with_largest_age_diff())
+        ResultWriter.write_txt(ApplicationConfig.TOP_5_LARGEST_AGE_DIFF_OUTPUT, report.top_5_rooms_with_largest_age_diff())
 
     except Exception as e:
         print(e)

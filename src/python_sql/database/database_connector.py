@@ -2,6 +2,8 @@ import mysql.connector
 from mysql.connector import Error as MYSQLError
 import os
 import logging
+from src.python_sql.constants.database_config import DatabaseConfig
+from src.python_sql.constants.messages import LogMessages, ErrorMessages
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -11,27 +13,27 @@ class MySQLConnector:
     def __init__(self):
         self.connection = None
         self.connection_parameters = {
-            'host': os.getenv('DB_HOST', 'localhost'),
-            'port': int(os.getenv('DB_PORT', 3307)),
-            'database': os.getenv('DB_NAME', 'my_database'),
-            'user': os.getenv('DB_USER', 'my_user'),
-            'password': os.getenv('DB_PASSWORD', 'my_password')
+            'host': os.getenv(DatabaseConfig.ENV_DB_HOST, DatabaseConfig.DEFAULT_HOST),
+            'port': int(os.getenv(DatabaseConfig.ENV_DB_PORT, DatabaseConfig.DEFAULT_PORT)),
+            'database': os.getenv(DatabaseConfig.ENV_DB_NAME, DatabaseConfig.DEFAULT_DATABASE),
+            'user': os.getenv(DatabaseConfig.ENV_DB_USER, DatabaseConfig.DEFAULT_USER),
+            'password': os.getenv(DatabaseConfig.ENV_DB_PASSWORD, DatabaseConfig.DEFAULT_PASSWORD)
         }
 
     def connect(self) -> None:
         if self.connection is not None and self.db_is_connected():
-            logger.warning("Database is already connected")
+            logger.warning(LogMessages.DB_ALREADY_CONNECTED)
             return
 
         try:
             self.connection = mysql.connector.connect(**self.connection_parameters)
             self.connection.autocommit = True
-            logger.info("Connected to database")
+            logger.info(LogMessages.DB_CONNECTED)
         except MYSQLError as error:
-            logger.error(f"Connection failed: {error}")
+            logger.error(LogMessages.DB_CONNECTION_FAILED.format(error))
             raise
         except Exception as error:
-            logger.error(f"Unexpected error while connecting to database: {error}")
+            logger.error(LogMessages.DB_UNEXPECTED_CONNECTION_ERROR.format(error))
             raise
 
     def disconnect(self) -> None:
@@ -41,11 +43,11 @@ class MySQLConnector:
         try:
             if self.connection.is_connected():
                 self.connection.close()
-                logger.info("Database connection closed")
+                logger.info(LogMessages.DB_CONNECTION_CLOSED)
         except MYSQLError as e:
-            logger.error(f"Failed to disconnect from database due to: {e}")
+            logger.error(LogMessages.DB_DISCONNECT_FAILED.format(e))
         except Exception as e:
-            logger.error(f"Unexpected error during disconnect: {e}")
+            logger.error(LogMessages.DB_UNEXPECTED_DISCONNECT_ERROR.format(e))
         finally:
             self.connection = None
 
@@ -57,14 +59,14 @@ class MySQLConnector:
 
     def get_cursor(self, dictionary: bool = False):
         if not self.db_is_connected():
-            logger.warning("Database is not connected")
-            raise ConnectionError("Database is not connected")
+            logger.warning(LogMessages.DB_NOT_CONNECTED)
+            raise ConnectionError(ErrorMessages.DB_NOT_CONNECTED)
 
         try:
             return self.connection.cursor(dictionary=dictionary)
         except MYSQLError as error:
-            logger.error(f"MySQL error getting cursor: {error}")
+            logger.error(LogMessages.DB_CURSOR_MYSQL_ERROR.format(error))
             raise
         except Exception as e:
-            logger.error(f"Unexpected error getting cursor: {e}")
+            logger.error(LogMessages.DB_CURSOR_UNEXPECTED_ERROR.format(e))
             raise
