@@ -1,0 +1,20 @@
+Index on (room_id, birthday) - our most important index.
+The Problem: Three of our four queries need to calculate
+student ages, which means they're constantly working with
+the birthday column. At the same time, every single query
+joins the Rooms and Students tables using room_id.
+When MySQL processes these queries, it first needs to
+match students to their rooms (using room_id), then
+immediately needs to calculate ages from birthdays.
+By putting both columns in one index, MySQL can do both
+operations lightning-fast without jumping around the database.
+
+Index on (room_id, sex) - For gender diversity queries.
+The Problem: We have one query that finds rooms where
+both male and female students live together. This query
+needs to group students by room, then check if each room
+has both 'M' and 'F' values.
+The room_id gets us to the right room quickly, and having
+sex as the second column means all the gender data for that
+room is grouped together. MySQL can instantly see "Room 3: M,
+M, F" and know this room has mixed genders.
