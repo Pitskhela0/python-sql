@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from src.python_sql.database.database_connector import MySQLConnector, MYSQLError
+from src.app.database.database_connector import MySQLConnector, MYSQLError
 from typing import Generator
-from src.python_sql.constants.sql_queries import SQLQueries
-from src.python_sql.constants.application_config import ApplicationConfig
-from src.python_sql.constants.messages import LogMessages, ErrorMessages
+from src.app.constants.sql_queries import SQLQueries
+from src.app.constants.application_config import ApplicationConfig
+from src.app.constants.messages import LogMessages, ErrorMessages
 import logging
 
 logger = logging.getLogger(__name__)

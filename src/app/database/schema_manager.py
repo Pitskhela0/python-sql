@@ -1,7 +1,7 @@
-from src.python_sql.database.database_connector import MySQLConnector
+from src.app.database.database_connector import MySQLConnector
 from mysql.connector import Error as MYSQLError
-from src.python_sql.constants.sql_queries import SQLQueries
-from src.python_sql.constants.messages import LogMessages, ErrorMessages
+from src.app.constants.sql_queries import SQLQueries
+from src.app.constants.messages import LogMessages, ErrorMessages
 import logging
 
 logger = logging.getLogger(__name__)

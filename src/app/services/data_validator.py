@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict
-from src.python_sql.constants.messages import LogMessages, ErrorMessages
+from src.app.constants.messages import LogMessages, ErrorMessages
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

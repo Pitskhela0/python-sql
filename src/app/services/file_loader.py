@@ -1,7 +1,7 @@
 from collections.abc import Generator
 import ijson
-from src.python_sql.constants.application_config import ApplicationConfig
-from src.python_sql.constants.messages import ErrorMessages
+from src.app.constants.application_config import ApplicationConfig
+from src.app.constants.messages import ErrorMessages
 
 
 class FileLoader:

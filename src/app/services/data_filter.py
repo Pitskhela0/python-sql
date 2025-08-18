@@ -1,7 +1,7 @@
 import logging
 from typing import Generator
-from src.python_sql.services.data_validator import ValidatorContext
-from src.python_sql.constants.messages import LogMessages
+from src.app.services.data_validator import ValidatorContext
+from src.app.constants.messages import LogMessages
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

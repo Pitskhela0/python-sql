@@ -2,8 +2,8 @@ import mysql.connector
 from mysql.connector import Error as MYSQLError
 import os
 import logging
-from src.python_sql.constants.database_config import DatabaseConfig
-from src.python_sql.constants.messages import LogMessages, ErrorMessages
+from src.app.constants.database_config import DatabaseConfig
+from src.app.constants.messages import LogMessages, ErrorMessages
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

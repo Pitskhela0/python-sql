@@ -1,9 +1,9 @@
 # test_basic.py
 import unittest
 from unittest.mock import Mock, patch
-from src.python_sql.services.data_validator import RoomValidator, StudentValidator, ValidatorContext
-from src.python_sql.services.data_filter import DataFilter
-from src.python_sql.database.database_operations import RoomRepository, StudentRepository
+from src.app.services.data_validator import RoomValidator, StudentValidator, ValidatorContext
+from src.app.services.data_filter import DataFilter
+from src.app.database.database_operations import RoomRepository, StudentRepository
 
 
 class TestValidators(unittest.TestCase):
@@ -75,7 +75,7 @@ class TestValidators(unittest.TestCase):
 class TestDataFilter(unittest.TestCase):
     """Basic tests for data filtering functionality."""
 
-    @patch('src.python_sql.services.data_filter.ValidatorContext')
+    @patch('src.app.services.data_filter.ValidatorContext')
     def test_filter_data_valid_items(self, mock_validator_context):
         """Test data filter with all valid items."""
         # Setup mock validator
@@ -93,7 +93,7 @@ class TestDataFilter(unittest.TestCase):
         self.assertEqual(len(filtered_data), 2)
         self.assertEqual(filtered_data, test_data)
 
-    @patch('src.python_sql.services.data_filter.ValidatorContext')
+    @patch('src.app.services.data_filter.ValidatorContext')
     def test_filter_data_mixed_validity(self, mock_validator_context):
         """Test data filter with mix of valid and invalid items."""
         # Setup mock validator to alternate between True/False

@@ -1,5 +1,5 @@
-from src.python_sql.database.database_connector import MySQLConnector
-from src.python_sql.constants.sql_queries import SQLQueries
+from src.app.database.database_connector import MySQLConnector
+from src.app.constants.sql_queries import SQLQueries
 
 
 class ReportingService:

@@ -4,7 +4,7 @@ class ApplicationConfig:
     ROOM_FILE_PATH = "src/resources/rooms.json"
     STUDENT_FILE_PATH = "src/resources/students.json"
 
-    OUTPUT_DIR = "src/python_sql/output"
+    OUTPUT_DIR = "src/app/output"
     TOP_5_LEAST_AVG_AGE_OUTPUT = f"{OUTPUT_DIR}/top_5_least_average_age_room.txt"
     ROOMS_WITH_DIFFERENT_SEX_OUTPUT = f"{OUTPUT_DIR}/rooms_with_different_sex.txt"
     ROOMS_WITH_STUDENTS_COUNT_OUTPUT = f"{OUTPUT_DIR}/rooms_with_students_count.txt"

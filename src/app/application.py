@@ -1,11 +1,11 @@
-from src.python_sql.services.file_loader import FileLoader
-from src.python_sql.services.data_filter import DataFilter
-from src.python_sql.database.database_connector import MySQLConnector
-from src.python_sql.database.schema_manager import SchemaManager
-from src.python_sql.database.database_operations import RoomRepository, StudentRepository
-from src.python_sql.services.reporting_service import ReportingService
-from src.python_sql.services.file_writter import ResultWriter
-from src.python_sql.constants.application_config import ApplicationConfig
+from src.app.services.file_loader import FileLoader
+from src.app.services.data_filter import DataFilter
+from src.app.database.database_connector import MySQLConnector
+from src.app.database.schema_manager import SchemaManager
+from src.app.database.database_operations import RoomRepository, StudentRepository
+from src.app.services.reporting_service import ReportingService
+from src.app.services.file_writter import ResultWriter
+from src.app.constants.application_config import ApplicationConfig
 
 from typing import Final
 import logging
@@ -50,7 +50,7 @@ def start_application() -> None:
         # do report
         report = ReportingService(db_connection)
 
-        # write report
+        # write report to files
         ResultWriter.write_txt(ApplicationConfig.TOP_5_LEAST_AVG_AGE_OUTPUT, report.top_5_least_average_age_room())
 
         ResultWriter.write_txt(ApplicationConfig.ROOMS_WITH_DIFFERENT_SEX_OUTPUT, report.rooms_with_different_sex())

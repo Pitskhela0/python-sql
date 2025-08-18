@@ -1,4 +1,4 @@
-from .python_sql import application
+from .app import application
 
 
 def main() -> None:

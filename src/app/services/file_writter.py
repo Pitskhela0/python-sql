@@ -1,8 +1,8 @@
 import os
 import logging
 from typing import List, Dict
-from src.python_sql.constants.application_config import ApplicationConfig
-from src.python_sql.constants.messages import LogMessages
+from src.app.constants.application_config import ApplicationConfig
+from src.app.constants.messages import LogMessages
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
